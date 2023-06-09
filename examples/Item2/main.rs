@@ -47,7 +47,16 @@ fn function_pointer() {
     println!("op = {:p}", op);
 }
 
-pub fn modify_all(data: &mut [u32], mutator: fn(u32) -> u32) {
+// pub fn modify_all(data: &mut [u32], mutator: fn(u32) -> u32) {
+//     for value in data {
+//         *value = mutator(*value);
+//     }
+// }
+
+pub fn modify_all<F>(data: &mut [u32], mut mutator: F)
+where
+    F: FnMut(u32) -> u32,
+{
     for value in data {
         *value = mutator(*value);
     }
@@ -71,4 +80,14 @@ fn add_by_n() {
     let add_n = |y| y + amount_to_add;
     let z = add_n(5);
     assert_eq!(z, 8);
+}
+
+#[test]
+fn modify_data_by_n() {
+    let mut data = vec![1, 2, 3];
+    let amount_to_add = 3;
+    let add_n = |y| y + amount_to_add;
+    modify_all(&mut data, add_n);
+    assert_eq!(data, vec![4, 5, 6]);
+    println!("{:?}", data);
 }
